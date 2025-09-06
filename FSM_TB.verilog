@@ -1,0 +1,57 @@
+`timescale 10ns / 1ps
+
+module new_test();
+
+    // Inputs
+    reg clk, reset, door_close, start, filled, detergent_added;
+    reg cycle_timeout, drained, spin_timeout;
+
+    // Outputs
+    wire door_lock, motor_on, fill_value_on, drain_value_on, done;
+    wire soap_wash, water_wash;
+
+    // Instantiate Washing Machine FSM
+    automatic_washing_machine machine1 (
+        clk, reset, door_close, start, filled, detergent_added,
+        cycle_timeout, drained, spin_timeout,
+        door_lock, motor_on, fill_value_on, drain_value_on,
+        done, soap_wash, water_wash
+    );
+
+    initial begin
+        clk = 0;
+        reset = 1;
+        start = 0;
+        door_close = 0;
+        filled = 0;
+        drained = 0;
+        detergent_added = 0;
+        cycle_timeout = 0;
+        spin_timeout = 0;
+
+        #5 reset = 0;
+        #5 start = 1; door_close = 1;
+        #10 filled = 1;
+        #10 detergent_added = 1;
+        #10 cycle_timeout = 1;
+        #10 drained = 1;
+        #10 spin_timeout = 1;
+
+        #50 $finish;
+    end
+
+    // Clock generation
+    always begin
+        #5 clk = ~clk;
+    end
+
+    // Monitor signals
+    initial begin
+        $monitor("Time=%d, Clock=%b, Reset=%b, Start=%b, Door_close=%b, Filled=%b, Detergent_added=%b, Cycle_timeout=%b, Drained=%b, Spin_timeout=%b, Door_lock=%b, Motor_on=%b, Fill_value_on=%b, Drain_value_on=%b, Done=%b, Soap_wash=%b, Water_wash=%b",
+                 $time, clk, reset, start, door_close, filled, detergent_added,
+                 cycle_timeout, drained, spin_timeout,
+                 door_lock, motor_on, fill_value_on, drain_value_on,
+                 done, soap_wash, water_wash);
+    end
+
+endmodule
